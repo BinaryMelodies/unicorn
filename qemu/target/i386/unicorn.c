@@ -374,23 +374,23 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
         switch (regid) {
         default:
             break;
-        case UC_X86_REG_ES:
+        case UC_X86_REG_ES_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = env->segs[R_ES].selector;
             return ret;
-        case UC_X86_REG_SS:
+        case UC_X86_REG_SS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = env->segs[R_SS].selector;
             return ret;
-        case UC_X86_REG_DS:
+        case UC_X86_REG_DS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = env->segs[R_DS].selector;
             return ret;
-        case UC_X86_REG_FS:
+        case UC_X86_REG_FS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = env->segs[R_FS].selector;
             return ret;
-        case UC_X86_REG_GS:
+        case UC_X86_REG_GS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = env->segs[R_GS].selector;
             return ret;
@@ -535,29 +535,71 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = READ_WORD(env->eip);
             break;
-        case UC_X86_REG_CS:
+        case UC_X86_REG_CS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_CS].selector;
             break;
-        case UC_X86_REG_DS:
+        case UC_X86_REG_DS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_DS].selector;
             break;
-        case UC_X86_REG_SS:
+        case UC_X86_REG_SS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_SS].selector;
             break;
-        case UC_X86_REG_ES:
+        case UC_X86_REG_ES_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_ES].selector;
             break;
-        case UC_X86_REG_FS:
+        case UC_X86_REG_FS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_FS].selector;
             break;
-        case UC_X86_REG_GS:
+        case UC_X86_REG_GS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_GS].selector;
+            break;
+        case UC_X86_REG_CS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_CS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_CS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_CS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_CS].flags;
+            break;
+        case UC_X86_REG_DS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_DS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_DS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_DS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_DS].flags;
+            break;
+        case UC_X86_REG_SS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_SS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_SS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_SS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_SS].flags;
+            break;
+        case UC_X86_REG_ES_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_ES].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_ES].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_ES].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_ES].flags;
+            break;
+        case UC_X86_REG_FS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_FS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_FS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_FS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_FS].flags;
+            break;
+        case UC_X86_REG_GS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_GS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_GS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_GS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_GS].flags;
             break;
         case UC_X86_REG_IDTR:
             CHECK_REG_TYPE(uc_x86_mmr);
@@ -791,29 +833,71 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = READ_WORD(env->eip);
             break;
-        case UC_X86_REG_CS:
+        case UC_X86_REG_CS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_CS].selector;
             break;
-        case UC_X86_REG_DS:
+        case UC_X86_REG_DS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_DS].selector;
             break;
-        case UC_X86_REG_SS:
+        case UC_X86_REG_SS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_SS].selector;
             break;
-        case UC_X86_REG_ES:
+        case UC_X86_REG_ES_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_ES].selector;
             break;
-        case UC_X86_REG_FS:
+        case UC_X86_REG_FS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_FS].selector;
             break;
-        case UC_X86_REG_GS:
+        case UC_X86_REG_GS_SELECTOR:
             CHECK_REG_TYPE(int16_t);
             *(int16_t *)value = (uint16_t)env->segs[R_GS].selector;
+            break;
+        case UC_X86_REG_CS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_CS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_CS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_CS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_CS].flags;
+            break;
+        case UC_X86_REG_DS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_DS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_DS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_DS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_DS].flags;
+            break;
+        case UC_X86_REG_SS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_SS].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_SS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_SS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_SS].flags;
+            break;
+        case UC_X86_REG_ES_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_ES].limit;
+            ((uc_x86_mmr *)value)->base = (uint32_t)env->segs[R_ES].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_ES].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_ES].flags;
+            break;
+        case UC_X86_REG_FS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_FS].limit;
+            ((uc_x86_mmr *)value)->base = env->segs[R_FS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_FS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_FS].flags;
+            break;
+        case UC_X86_REG_GS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            ((uc_x86_mmr *)value)->limit = env->segs[R_GS].limit;
+            ((uc_x86_mmr *)value)->base = env->segs[R_GS].base;
+            ((uc_x86_mmr *)value)->selector = (uint16_t)env->segs[R_GS].selector;
+            ((uc_x86_mmr *)value)->flags = env->segs[R_GS].flags;
             break;
         case UC_X86_REG_R8:
             CHECK_REG_TYPE(int64_t);
@@ -1222,23 +1306,23 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
         switch (regid) {
         default:
             break;
-        case UC_X86_REG_ES:
+        case UC_X86_REG_ES_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             load_seg_16_helper(env, R_ES, *(uint16_t *)value);
             return ret;
-        case UC_X86_REG_SS:
+        case UC_X86_REG_SS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             load_seg_16_helper(env, R_SS, *(uint16_t *)value);
             return ret;
-        case UC_X86_REG_DS:
+        case UC_X86_REG_DS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             load_seg_16_helper(env, R_DS, *(uint16_t *)value);
             return ret;
-        case UC_X86_REG_FS:
+        case UC_X86_REG_FS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             load_seg_16_helper(env, R_FS, *(uint16_t *)value);
             return ret;
-        case UC_X86_REG_GS:
+        case UC_X86_REG_GS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             load_seg_16_helper(env, R_GS, *(uint16_t *)value);
             return ret;
@@ -1391,7 +1475,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             env->eip = *(uint16_t *)value;
             *setpc = 1;
             break;
-        case UC_X86_REG_CS:
+        case UC_X86_REG_CS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_CS, *(uint16_t *)value);
             if (ret) {
@@ -1399,7 +1483,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             }
             cpu_x86_load_seg(env, R_CS, *(uint16_t *)value);
             break;
-        case UC_X86_REG_DS:
+        case UC_X86_REG_DS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_DS, *(uint16_t *)value);
             if (ret) {
@@ -1407,7 +1491,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             }
             cpu_x86_load_seg(env, R_DS, *(uint16_t *)value);
             break;
-        case UC_X86_REG_SS:
+        case UC_X86_REG_SS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_SS, *(uint16_t *)value);
             if (ret) {
@@ -1415,7 +1499,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             }
             cpu_x86_load_seg(env, R_SS, *(uint16_t *)value);
             break;
-        case UC_X86_REG_ES:
+        case UC_X86_REG_ES_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_ES, *(uint16_t *)value);
             if (ret) {
@@ -1423,7 +1507,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             }
             cpu_x86_load_seg(env, R_ES, *(uint16_t *)value);
             break;
-        case UC_X86_REG_FS:
+        case UC_X86_REG_FS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_FS, *(uint16_t *)value);
             if (ret) {
@@ -1431,13 +1515,55 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             }
             cpu_x86_load_seg(env, R_FS, *(uint16_t *)value);
             break;
-        case UC_X86_REG_GS:
+        case UC_X86_REG_GS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_GS, *(uint16_t *)value);
             if (ret) {
                 return ret;
             }
             cpu_x86_load_seg(env, R_GS, *(uint16_t *)value);
+            break;
+        case UC_X86_REG_CS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_CS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_CS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_CS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_CS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_DS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_DS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_DS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_DS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_DS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_SS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_SS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_SS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_SS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_SS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_ES_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_ES].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_ES].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_ES].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_ES].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_FS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_FS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_FS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_FS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_FS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_GS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_GS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_GS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_GS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_GS].flags = ((uc_x86_mmr *)value)->flags;
             break;
         case UC_X86_REG_IDTR:
             CHECK_REG_TYPE(uc_x86_mmr);
@@ -1690,26 +1816,26 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             break;
         case UC_X86_REG_IP:
             CHECK_REG_TYPE(uint16_t);
-            WRITE_WORD(env->eip, *(uint16_t *)value);
+            WRITE_DWORD(env->eip, *(uint16_t *)value);
             *setpc = 1;
             break;
-        case UC_X86_REG_CS:
+        case UC_X86_REG_CS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             env->segs[R_CS].selector = *(uint16_t *)value;
             break;
-        case UC_X86_REG_DS:
+        case UC_X86_REG_DS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             env->segs[R_DS].selector = *(uint16_t *)value;
             break;
-        case UC_X86_REG_SS:
+        case UC_X86_REG_SS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             env->segs[R_SS].selector = *(uint16_t *)value;
             break;
-        case UC_X86_REG_ES:
+        case UC_X86_REG_ES_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             env->segs[R_ES].selector = *(uint16_t *)value;
             break;
-        case UC_X86_REG_FS:
+        case UC_X86_REG_FS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_FS, *(uint16_t *)value);
             if (ret) {
@@ -1717,13 +1843,55 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             }
             cpu_x86_load_seg(env, R_FS, *(uint16_t *)value);
             break;
-        case UC_X86_REG_GS:
+        case UC_X86_REG_GS_SELECTOR:
             CHECK_REG_TYPE(uint16_t);
             ret = uc_check_cpu_x86_load_seg(env, R_GS, *(uint16_t *)value);
             if (ret) {
                 return ret;
             }
             cpu_x86_load_seg(env, R_GS, *(uint16_t *)value);
+            break;
+        case UC_X86_REG_CS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_CS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_CS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_CS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_CS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_DS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_DS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_DS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_DS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_DS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_SS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_SS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_SS].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_SS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_SS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_ES_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_ES].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_ES].base = (uint32_t)((uc_x86_mmr *)value)->base;
+            env->segs[R_ES].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_ES].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_FS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_FS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_FS].base = ((uc_x86_mmr *)value)->base;
+            env->segs[R_FS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_FS].flags = ((uc_x86_mmr *)value)->flags;
+            break;
+        case UC_X86_REG_GS_DESCRIPTOR:
+            CHECK_REG_TYPE(uc_x86_mmr);
+            env->segs[R_GS].limit = ((uc_x86_mmr *)value)->limit;
+            env->segs[R_GS].base = ((uc_x86_mmr *)value)->base;
+            env->segs[R_GS].selector = (uint16_t)((uc_x86_mmr *)value)->selector;
+            env->segs[R_GS].flags = ((uc_x86_mmr *)value)->flags;
             break;
         case UC_X86_REG_R8:
             CHECK_REG_TYPE(uint64_t);
