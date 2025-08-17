@@ -137,16 +137,13 @@ typedef enum uc_mode {
     UC_MODE_MIPS64 = 1 << 3,   // Mips64 ISA
 
     // x86 / x64
-    UC_MODE_16_BIT = 1 << 1, // 16-bit mode
-    UC_MODE_32_BIT = 1 << 2, // 32-bit mode
-    UC_MODE_64_BIT = 1 << 3, // 64-bit mode
+    UC_MODE_16 = 1 << 1, // 16-bit mode
+    UC_MODE_32 = 1 << 2, // 32-bit mode
+    UC_MODE_64 = 1 << 3, // 64-bit mode
     UC_MODE_REAL = 1 << 4, // real mode
     UC_MODE_PROTECTED = 1 << 5, // protected mode
     UC_MODE_LONG = 1 << 6, // long mode
     UC_MODE_VIRTUAL = 1 << 7, // virtual 8086 mode
-    UC_MODE_16 = UC_MODE_16_BIT | UC_MODE_REAL,
-    UC_MODE_32 = UC_MODE_32_BIT | UC_MODE_PROTECTED,
-    UC_MODE_64 = UC_MODE_64_BIT | UC_MODE_LONG,
 
     // ppc
     UC_MODE_PPC32 = 1 << 2, // 32-bit mode

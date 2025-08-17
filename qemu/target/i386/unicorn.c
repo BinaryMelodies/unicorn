@@ -150,12 +150,12 @@ static void reg_reset(struct uc_struct *uc)
     switch (uc->mode & UC_MODE_X86_BIT_MASK) {
     default:
         break;
-    case UC_MODE_16_BIT:
+    case UC_MODE_16:
         break;
-    case UC_MODE_32_BIT:
+    case UC_MODE_32:
         env->hflags |= HF_CS32_MASK | HF_SS32_MASK | HF_OSFXSR_MASK;
         break;
-    case UC_MODE_64_BIT:
+    case UC_MODE_64:
         env->hflags |= HF_CS32_MASK | HF_SS32_MASK | HF_CS64_MASK |
                        HF_OSFXSR_MASK;
         env->hflags &= ~(HF_ADDSEG_MASK);
@@ -181,9 +181,9 @@ static void reg_reset(struct uc_struct *uc)
             cpu_x86_load_seg_cache(env, R_CS, 0, 0, 0xffff,
                                    DESC_P_MASK | DESC_S_MASK | DESC_CS_MASK |
                                        DESC_R_MASK | DESC_A_MASK |
-                                       (uc->mode & UC_MODE_32_BIT ? DESC_B_MASK : 0));
+                                       (uc->mode & UC_MODE_32 ? DESC_B_MASK : 0));
             // remainder yields same state as x86_cpu_reset
-            if (uc->mode & UC_MODE_32_BIT) {
+            if (uc->mode & UC_MODE_32) {
                 load_seg_16_helper(env, R_DS, 0);
                 load_seg_16_helper(env, R_ES, 0);
                 load_seg_16_helper(env, R_SS, 0);
@@ -398,7 +398,7 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
     switch (mode & UC_MODE_X86_BIT_MASK) {
     default:
         break;
-    case UC_MODE_16_BIT:
+    case UC_MODE_16:
         switch (regid) {
         default:
             break;
@@ -428,7 +428,7 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
             return ret;
         }
         // fall-thru
-    case UC_MODE_32_BIT:
+    case UC_MODE_32:
         switch (regid) {
         default:
             break;
@@ -669,7 +669,7 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
         break;
 
 #ifdef TARGET_X86_64
-    case UC_MODE_64_BIT:
+    case UC_MODE_64:
         switch (regid) {
         default:
             break;
@@ -1330,8 +1330,8 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
     default:
         break;
 
-    case UC_MODE_16_BIT | UC_MODE_REAL:
-    case UC_MODE_16_BIT | UC_MODE_VIRTUAL:
+    case UC_MODE_16 | UC_MODE_REAL:
+    case UC_MODE_16 | UC_MODE_VIRTUAL:
         switch (regid) {
         default:
             break;
@@ -1357,8 +1357,8 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             return ret;
         }
         // fall-thru
-    case UC_MODE_32_BIT | UC_MODE_REAL:
-    case UC_MODE_32_BIT | UC_MODE_VIRTUAL:
+    case UC_MODE_32 | UC_MODE_REAL:
+    case UC_MODE_32 | UC_MODE_VIRTUAL:
         switch (regid) {
         default:
             break;
@@ -1384,10 +1384,10 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             return ret;
         }
         // fall-thru
-    case UC_MODE_16_BIT | UC_MODE_PROTECTED:
-    case UC_MODE_16_BIT | UC_MODE_LONG:
-    case UC_MODE_32_BIT | UC_MODE_PROTECTED:
-    case UC_MODE_32_BIT | UC_MODE_LONG:
+    case UC_MODE_16 | UC_MODE_PROTECTED:
+    case UC_MODE_16 | UC_MODE_LONG:
+    case UC_MODE_32 | UC_MODE_PROTECTED:
+    case UC_MODE_32 | UC_MODE_LONG:
         switch (regid) {
         default:
             break;
@@ -1671,7 +1671,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
         break;
 
 #ifdef TARGET_X86_64
-    case UC_MODE_64_BIT | UC_MODE_LONG:
+    case UC_MODE_64 | UC_MODE_LONG:
         switch (regid) {
         default:
             break;

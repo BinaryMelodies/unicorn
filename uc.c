@@ -348,14 +348,28 @@ uc_err uc_open(uc_arch arch, uc_mode mode, uc_engine **result)
 #ifdef UNICORN_HAS_X86
         case UC_ARCH_X86:
             if ((mode & ~UC_MODE_X86_MASK) || (mode & UC_MODE_BIG_ENDIAN) ||
-                !(mode & (UC_MODE_16_BIT | UC_MODE_32_BIT | UC_MODE_64_BIT)) ||
-                !(mode & (UC_MODE_REAL | UC_MODE_PROTECTED | UC_MODE_LONG |
-                          UC_MODE_VIRTUAL)) ||
-                ((mode & UC_MODE_VIRTUAL) && !(mode & UC_MODE_16_BIT)) ||
-                ((mode & UC_MODE_64_BIT) && !(mode & UC_MODE_LONG))) {
+                !(mode & (UC_MODE_16 | UC_MODE_32 | UC_MODE_64)) ||
+                ((mode & UC_MODE_VIRTUAL) && !(mode & UC_MODE_16)) ||
+                ((mode & UC_MODE_64) && (mode & (UC_MODE_REAL | UC_MODE_PROTECTED)))) {
                 free(uc);
                 return UC_ERR_MODE;
             }
+            // compatibility with earlier version of Unicorn
+            if (!(mode & (UC_MODE_REAL | UC_MODE_PROTECTED | UC_MODE_LONG |
+                          UC_MODE_VIRTUAL))) {
+            	switch(mode) {
+            	case UC_MODE_16:
+            	    uc->mode |= UC_MODE_REAL;
+            	    break;
+            	case UC_MODE_32:
+            	    uc->mode |= UC_MODE_PROTECTED;
+            	    break;
+            	case UC_MODE_64:
+            	    uc->mode |= UC_MODE_LONG;
+            	    break;
+            	}
+            }
+
             uc->init_arch = uc_init_x86_64;
             break;
 #endif
@@ -993,9 +1007,9 @@ uc_err uc_emu_start(uc_engine *uc, uint64_t begin, uint64_t until,
         switch ((int) uc->mode) {
         default:
             break;
-        case UC_MODE_16_BIT | UC_MODE_REAL:
-        case UC_MODE_16_BIT | UC_MODE_VIRTUAL:
-        case UC_MODE_32_BIT | UC_MODE_REAL: {
+        case UC_MODE_16 | UC_MODE_REAL:
+        case UC_MODE_16 | UC_MODE_VIRTUAL:
+        case UC_MODE_32 | UC_MODE_REAL: {
             uint32_t eip;
             uint16_t cs;
 
@@ -1005,13 +1019,13 @@ uc_err uc_emu_start(uc_engine *uc, uint64_t begin, uint64_t until,
             uc_reg_write(uc, UC_X86_REG_EIP, &eip);
             break;
         }
-        case UC_MODE_16_BIT | UC_MODE_PROTECTED:
-        case UC_MODE_16_BIT | UC_MODE_LONG:
-        case UC_MODE_32_BIT | UC_MODE_PROTECTED:
-        case UC_MODE_32_BIT | UC_MODE_LONG:
+        case UC_MODE_16 | UC_MODE_PROTECTED:
+        case UC_MODE_16 | UC_MODE_LONG:
+        case UC_MODE_32 | UC_MODE_PROTECTED:
+        case UC_MODE_32 | UC_MODE_LONG:
             uc_reg_write(uc, UC_X86_REG_EIP, &begin_pc32);
             break;
-        case UC_MODE_64_BIT | UC_MODE_LONG:
+        case UC_MODE_64 | UC_MODE_LONG:
             uc_reg_write(uc, UC_X86_REG_RIP, &begin);
             break;
         }
@@ -2691,33 +2705,33 @@ uc_err uc_ctl(uc_engine *uc, uc_control_type control, ...)
                     break;
                 }
             } else if (uc->arch == UC_ARCH_MIPS) {
-                if (uc->mode & UC_MODE_32_BIT && model >= UC_CPU_MIPS32_ENDING) {
+                if (uc->mode & UC_MODE_32 && model >= UC_CPU_MIPS32_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
 
-                if (uc->mode & UC_MODE_64_BIT && model >= UC_CPU_MIPS64_ENDING) {
+                if (uc->mode & UC_MODE_64 && model >= UC_CPU_MIPS64_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
             } else if (uc->arch == UC_ARCH_PPC) {
-                // UC_MODE_PPC32 == UC_MODE_32_BIT
-                if (uc->mode & UC_MODE_32_BIT && model >= UC_CPU_PPC32_ENDING) {
+                // UC_MODE_PPC32 == UC_MODE_32
+                if (uc->mode & UC_MODE_32 && model >= UC_CPU_PPC32_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
 
-                if (uc->mode & UC_MODE_64_BIT && model >= UC_CPU_PPC64_ENDING) {
+                if (uc->mode & UC_MODE_64 && model >= UC_CPU_PPC64_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
             } else if (uc->arch == UC_ARCH_RISCV) {
-                if (uc->mode & UC_MODE_32_BIT && model >= UC_CPU_RISCV32_ENDING) {
+                if (uc->mode & UC_MODE_32 && model >= UC_CPU_RISCV32_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
 
-                if (uc->mode & UC_MODE_64_BIT && model >= UC_CPU_RISCV64_ENDING) {
+                if (uc->mode & UC_MODE_64 && model >= UC_CPU_RISCV64_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
@@ -2727,11 +2741,11 @@ uc_err uc_ctl(uc_engine *uc, uc_control_type control, ...)
                     break;
                 }
             } else if (uc->arch == UC_ARCH_SPARC) {
-                if (uc->mode & UC_MODE_32_BIT && model >= UC_CPU_SPARC32_ENDING) {
+                if (uc->mode & UC_MODE_32 && model >= UC_CPU_SPARC32_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
-                if (uc->mode & UC_MODE_64_BIT && model >= UC_CPU_SPARC64_ENDING) {
+                if (uc->mode & UC_MODE_64 && model >= UC_CPU_SPARC64_ENDING) {
                     err = UC_ERR_ARG;
                     break;
                 }
