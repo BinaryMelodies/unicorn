@@ -59,12 +59,14 @@ public interface X86Const {
     public static final int UC_X86_REG_BX = 8;
     public static final int UC_X86_REG_CH = 9;
     public static final int UC_X86_REG_CL = 10;
+    public static final int UC_X86_REG_CS_SELECTOR = 11;
     public static final int UC_X86_REG_CS = 11;
     public static final int UC_X86_REG_CX = 12;
     public static final int UC_X86_REG_DH = 13;
     public static final int UC_X86_REG_DI = 14;
     public static final int UC_X86_REG_DIL = 15;
     public static final int UC_X86_REG_DL = 16;
+    public static final int UC_X86_REG_DS_SELECTOR = 17;
     public static final int UC_X86_REG_DS = 17;
     public static final int UC_X86_REG_DX = 18;
     public static final int UC_X86_REG_EAX = 19;
@@ -75,11 +77,14 @@ public interface X86Const {
     public static final int UC_X86_REG_EDX = 24;
     public static final int UC_X86_REG_EFLAGS = 25;
     public static final int UC_X86_REG_EIP = 26;
+    public static final int UC_X86_REG_ES_SELECTOR = 28;
     public static final int UC_X86_REG_ES = 28;
     public static final int UC_X86_REG_ESI = 29;
     public static final int UC_X86_REG_ESP = 30;
     public static final int UC_X86_REG_FPSW = 31;
+    public static final int UC_X86_REG_FS_SELECTOR = 32;
     public static final int UC_X86_REG_FS = 32;
+    public static final int UC_X86_REG_GS_SELECTOR = 33;
     public static final int UC_X86_REG_GS = 33;
     public static final int UC_X86_REG_IP = 34;
     public static final int UC_X86_REG_RAX = 35;
@@ -95,6 +100,7 @@ public interface X86Const {
     public static final int UC_X86_REG_SIL = 46;
     public static final int UC_X86_REG_SP = 47;
     public static final int UC_X86_REG_SPL = 48;
+    public static final int UC_X86_REG_SS_SELECTOR = 49;
     public static final int UC_X86_REG_SS = 49;
     public static final int UC_X86_REG_CR0 = 50;
     public static final int UC_X86_REG_CR1 = 51;
@@ -287,7 +293,13 @@ public interface X86Const {
     public static final int UC_X86_REG_FDP = 256;
     public static final int UC_X86_REG_FDS = 257;
     public static final int UC_X86_REG_FOP = 258;
-    public static final int UC_X86_REG_ENDING = 259;
+    public static final int UC_X86_REG_CS_DESCRIPTOR = 259;
+    public static final int UC_X86_REG_DS_DESCRIPTOR = 260;
+    public static final int UC_X86_REG_ES_DESCRIPTOR = 261;
+    public static final int UC_X86_REG_FS_DESCRIPTOR = 262;
+    public static final int UC_X86_REG_GS_DESCRIPTOR = 263;
+    public static final int UC_X86_REG_SS_DESCRIPTOR = 264;
+    public static final int UC_X86_REG_ENDING = 265;
 
     // X86 instructions
 
