@@ -151,6 +151,9 @@ static void reg_reset(struct uc_struct *uc)
     default:
         break;
     case UC_MODE_16:
+        if (uc->mode & UC_MODE_REAL) {
+            env->hflags = 0;
+        }
         break;
     case UC_MODE_32:
         env->hflags |= HF_CS32_MASK | HF_SS32_MASK | HF_OSFXSR_MASK;
@@ -167,10 +170,7 @@ static void reg_reset(struct uc_struct *uc)
             break;
         case UC_MODE_REAL:
         case UC_MODE_VIRTUAL:
-            if (uc->mode & UC_MODE_REAL) {
-                env->hflags = 0;
-                env->cr[0] = 0;
-            } else {
+            if (uc->mode & UC_MODE_VIRTUAL) {
                 env->hflags |= HF_VM_MASK;
                 env->eflags |= VM_MASK;
                 cpu_x86_update_cr0(env, CR0_PE_MASK);     // protected mode
