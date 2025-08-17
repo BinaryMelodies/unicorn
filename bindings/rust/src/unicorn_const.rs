@@ -222,6 +222,10 @@ bitflags! {
         const MODE_16 = 2;
         const MODE_32 = Self::MIPS32.bits();
         const MODE_64 = Self::MIPS64.bits();
+        const MODE_REAL = 0x10;
+        const MODE_PROTECTED = 0x20;
+        const MODE_LONG = 0x40;
+        const MODE_VIRTUAL = 0x80;
         const PPC32 = Self::MIPS32.bits();
         const PPC64 = Self::MIPS64.bits();
         const QPX = Self::THUMB.bits();

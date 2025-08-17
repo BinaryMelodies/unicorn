@@ -125,6 +125,10 @@ Public Enum uc_mode                   'from /bindings/dotnet/common.fs
      UC_MODE_16 = 2                   '16-bit mode
      UC_MODE_32 = 4                   '32-bit mode
      UC_MODE_64 = 8                   '64-bit mode
+     UC_MODE_REAL = 16                'Real mode
+     UC_MODE_PROTECTED = 32           'Protected mode
+     UC_MODE_LONG = 64                'Long mode
+     UC_MODE_VIRTUAL = 128            'Virtual 8086 mode
 '     UC_MODE_PPC32 = 4                '32-bit mode (currently unsupported)
 '     UC_MODE_PPC64 = 8                '64-bit mode (currently unsupported)
 '     UC_MODE_QPX = 16                 'Quad Processing eXtensions mode (currently unsupported)
@@ -180,12 +184,14 @@ Public Enum uc_x86_reg
      UC_X86_REG_BX = 8
      UC_X86_REG_CH = 9
      UC_X86_REG_CL = 10
+     UC_X86_REG_CS_SELECTOR = 11
      UC_X86_REG_CS = 11
      UC_X86_REG_CX = 12
      UC_X86_REG_DH = 13
      UC_X86_REG_DI = 14
      UC_X86_REG_DIL = 15
      UC_X86_REG_DL = 16
+     UC_X86_REG_DS_SELECTOR = 17
      UC_X86_REG_DS = 17
      UC_X86_REG_DX = 18
      UC_X86_REG_EAX = 19
@@ -197,11 +203,14 @@ Public Enum uc_x86_reg
      UC_X86_REG_EFLAGS = 25
      UC_X86_REG_EIP = 26
      UC_X86_REG_EIZ = 27
+     UC_X86_REG_ES_SELECTOR = 28
      UC_X86_REG_ES = 28
      UC_X86_REG_ESI = 29
      UC_X86_REG_ESP = 30
      UC_X86_REG_FPSW = 31
+     UC_X86_REG_FS_SELECTOR = 32
      UC_X86_REG_FS = 32
+     UC_X86_REG_GS_SELECTOR = 33
      UC_X86_REG_GS = 33
      UC_X86_REG_IP = 34
      UC_X86_REG_RAX = 35
@@ -218,6 +227,7 @@ Public Enum uc_x86_reg
      UC_X86_REG_SIL = 46
      UC_X86_REG_SP = 47
      UC_X86_REG_SPL = 48
+     UC_X86_REG_SS_SELECTOR = 49
      UC_X86_REG_SS = 49
      UC_X86_REG_CR0 = 50
      UC_X86_REG_CR1 = 51
@@ -417,7 +427,24 @@ Public Enum uc_x86_reg
      UC_X86_REG_TR = 245
      UC_X86_REG_FPCW = 246
      UC_X86_REG_FPTAG = 247
-     UC_X86_REG_ENDING = 248
+     UC_X86_REG_MSR = 248
+     UC_X86_REG_MXCSR = 249
+     UC_X86_REG_FS_BASE = 250
+     UC_X86_REG_GS_BASE = 251
+     UC_X86_REG_FLAGS = 252
+     UC_X86_REG_RFLAGS = 253
+     UC_X86_REG_FIP = 254
+     UC_X86_REG_FCS = 255
+     UC_X86_REG_FDP = 256
+     UC_X86_REG_FDS = 257
+     UC_X86_REG_FOP = 258
+     UC_X86_REG_CS_DESCRIPTOR = 259
+     UC_X86_REG_DS_DESCRIPTOR = 260
+     UC_X86_REG_ES_DESCRIPTOR = 261
+     UC_X86_REG_FS_DESCRIPTOR = 262
+     UC_X86_REG_GS_DESCRIPTOR = 263
+     UC_X86_REG_SS_DESCRIPTOR = 264
+     UC_X86_REG_ENDING = 265
 End Enum
 
 'Public Enum uc_x86_insn
