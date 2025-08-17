@@ -18,6 +18,12 @@ static void load_seg_16_helper(CPUX86State *env, int seg, uint32_t selector)
                            X86_NON_CS_FLAGS);
 }
 
+static void load_seg_32_helper(CPUX86State *env, int seg, uint32_t selector)
+{
+    cpu_x86_load_seg_cache(env, seg, selector, (selector << 4), 0xffffffff,
+                           X86_NON_CS_FLAGS | (seg == R_SS ? DESC_B_MASK : 0));
+}
+
 void cpu_get_fp80(uint64_t *pmant, uint16_t *pexp, floatx80 f);
 floatx80 cpu_set_fp80(uint64_t mant, uint16_t upper);
 
@@ -26,17 +32,22 @@ extern void helper_rdmsr(CPUX86State *env);
 
 static void x86_set_pc(struct uc_struct *uc, uint64_t address)
 {
-    if (uc->mode == UC_MODE_16) {
+    if ((uc->mode & (UC_MODE_REAL | UC_MODE_VIRTUAL))) {
         int16_t cs = (uint16_t)X86_CPU(uc->cpu)->env.segs[R_CS].selector;
         ((CPUX86State *)uc->cpu->env_ptr)->eip = address - cs * 16;
+    } else if ((uc->mode & UC_MODE_PROTECTED)) {
+        ((CPUX86State *)uc->cpu->env_ptr)->eip = address - X86_CPU(uc->cpu)->env.segs[R_CS].base;
     } else
         ((CPUX86State *)uc->cpu->env_ptr)->eip = address;
 }
 
 static uint64_t x86_get_pc(struct uc_struct *uc)
 {
-    if (uc->mode == UC_MODE_16) {
+    if ((uc->mode & (UC_MODE_REAL | UC_MODE_VIRTUAL))) {
         return X86_CPU(uc->cpu)->env.segs[R_CS].selector * 16 +
+               ((CPUX86State *)uc->cpu->env_ptr)->eip;
+    } else if ((uc->mode & UC_MODE_PROTECTED)) {
+        return X86_CPU(uc->cpu)->env.segs[R_CS].base +
                ((CPUX86State *)uc->cpu->env_ptr)->eip;
     } else {
         return ((CPUX86State *)uc->cpu->env_ptr)->eip;
@@ -136,45 +147,64 @@ static void reg_reset(struct uc_struct *uc)
     // TODO: reset other registers in CPUX86State qemu/target-i386/cpu.h
 
     // properly initialize internal setup for each mode
-    switch (uc->mode) {
+    switch (uc->mode & UC_MODE_X86_BIT_MASK) {
     default:
         break;
-    case UC_MODE_16:
-        env->hflags = 0;
-        env->cr[0] = 0;
-        // undo the damage done by the memset of env->segs above
-        // for R_CS, not quite the same as x86_cpu_reset
-        cpu_x86_load_seg_cache(env, R_CS, 0, 0, 0xffff,
-                               DESC_P_MASK | DESC_S_MASK | DESC_CS_MASK |
-                                   DESC_R_MASK | DESC_A_MASK);
-        // remainder yields same state as x86_cpu_reset
-        load_seg_16_helper(env, R_DS, 0);
-        load_seg_16_helper(env, R_ES, 0);
-        load_seg_16_helper(env, R_SS, 0);
-        load_seg_16_helper(env, R_FS, 0);
-        load_seg_16_helper(env, R_GS, 0);
-
+    case UC_MODE_16_BIT:
         break;
-    case UC_MODE_32:
+    case UC_MODE_32_BIT:
         env->hflags |= HF_CS32_MASK | HF_SS32_MASK | HF_OSFXSR_MASK;
         break;
-    case UC_MODE_64:
+    case UC_MODE_64_BIT:
         env->hflags |= HF_CS32_MASK | HF_SS32_MASK | HF_CS64_MASK |
-                       HF_LMA_MASK | HF_OSFXSR_MASK;
+                       HF_OSFXSR_MASK;
         env->hflags &= ~(HF_ADDSEG_MASK);
-        env->efer |= MSR_EFER_LMA | MSR_EFER_LME; // extended mode activated
-        
-        /* If we are operating in 64bit mode then add the Long Mode flag
-         * to the CPUID feature flag
-         */
-        env->features[FEAT_8000_0001_EDX] |= CPUID_EXT2_LM;
         break;
     }
 
-    // CR initialization
-    switch (uc->mode) {
-        case UC_MODE_32:
-        case UC_MODE_64: {
+    switch (uc->mode & UC_MODE_X86_MODE_MASK) {
+        default:
+            break;
+        case UC_MODE_REAL:
+        case UC_MODE_VIRTUAL:
+            if (uc->mode & UC_MODE_REAL) {
+                env->hflags = 0;
+                env->cr[0] = 0;
+            } else {
+                env->hflags |= HF_VM_MASK;
+                env->eflags |= VM_MASK;
+                cpu_x86_update_cr0(env, CR0_PE_MASK);     // protected mode
+            }
+
+            // undo the damage done by the memset of env->segs above
+            // for R_CS, not quite the same as x86_cpu_reset
+            cpu_x86_load_seg_cache(env, R_CS, 0, 0, 0xffff,
+                                   DESC_P_MASK | DESC_S_MASK | DESC_CS_MASK |
+                                       DESC_R_MASK | DESC_A_MASK |
+                                       (uc->mode & UC_MODE_32_BIT ? DESC_B_MASK : 0));
+            // remainder yields same state as x86_cpu_reset
+            if (uc->mode & UC_MODE_32_BIT) {
+                load_seg_16_helper(env, R_DS, 0);
+                load_seg_16_helper(env, R_ES, 0);
+                load_seg_16_helper(env, R_SS, 0);
+                load_seg_16_helper(env, R_FS, 0);
+                load_seg_16_helper(env, R_GS, 0);
+            } else {
+                load_seg_32_helper(env, R_DS, 0);
+                load_seg_32_helper(env, R_ES, 0);
+                load_seg_32_helper(env, R_SS, 0);
+                load_seg_32_helper(env, R_FS, 0);
+                load_seg_32_helper(env, R_GS, 0);
+            }
+            break;
+        case UC_MODE_LONG:
+            env->hflags |= HF_LMA_MASK;
+            env->efer |= MSR_EFER_LMA | MSR_EFER_LME; // extended mode activated
+            env->features[FEAT_8000_0001_EDX] |= CPUID_EXT2_LM;
+            // fall-thru
+        case UC_MODE_PROTECTED: {
+            // CR initialization
+
             uint32_t cr4 = 0;
 
             if (env->features[FEAT_1_ECX] & CPUID_EXT_XSAVE) {
@@ -188,8 +218,6 @@ static void reg_reset(struct uc_struct *uc)
             cpu_x86_update_cr4(env, cr4);
             break;
         }
-        default:
-            break;
     }
 }
 
@@ -367,10 +395,10 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
         return ret;
     }
 
-    switch (mode) {
+    switch (mode & UC_MODE_X86_BIT_MASK) {
     default:
         break;
-    case UC_MODE_16:
+    case UC_MODE_16_BIT:
         switch (regid) {
         default:
             break;
@@ -400,7 +428,7 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
             return ret;
         }
         // fall-thru
-    case UC_MODE_32:
+    case UC_MODE_32_BIT:
         switch (regid) {
         default:
             break;
@@ -641,7 +669,7 @@ uc_err reg_read(void *_env, int mode, unsigned int regid, void *value,
         break;
 
 #ifdef TARGET_X86_64
-    case UC_MODE_64:
+    case UC_MODE_64_BIT:
         switch (regid) {
         default:
             break;
@@ -1302,7 +1330,8 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
     default:
         break;
 
-    case UC_MODE_16:
+    case UC_MODE_16_BIT | UC_MODE_REAL:
+    case UC_MODE_16_BIT | UC_MODE_VIRTUAL:
         switch (regid) {
         default:
             break;
@@ -1328,7 +1357,37 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
             return ret;
         }
         // fall-thru
-    case UC_MODE_32:
+    case UC_MODE_32_BIT | UC_MODE_REAL:
+    case UC_MODE_32_BIT | UC_MODE_VIRTUAL:
+        switch (regid) {
+        default:
+            break;
+        case UC_X86_REG_ES_SELECTOR:
+            CHECK_REG_TYPE(uint16_t);
+            load_seg_32_helper(env, R_ES, *(uint16_t *)value);
+            return ret;
+        case UC_X86_REG_SS_SELECTOR:
+            CHECK_REG_TYPE(uint16_t);
+            load_seg_32_helper(env, R_SS, *(uint16_t *)value);
+            return ret;
+        case UC_X86_REG_DS_SELECTOR:
+            CHECK_REG_TYPE(uint16_t);
+            load_seg_32_helper(env, R_DS, *(uint16_t *)value);
+            return ret;
+        case UC_X86_REG_FS_SELECTOR:
+            CHECK_REG_TYPE(uint16_t);
+            load_seg_32_helper(env, R_FS, *(uint16_t *)value);
+            return ret;
+        case UC_X86_REG_GS_SELECTOR:
+            CHECK_REG_TYPE(uint16_t);
+            load_seg_32_helper(env, R_GS, *(uint16_t *)value);
+            return ret;
+        }
+        // fall-thru
+    case UC_MODE_16_BIT | UC_MODE_PROTECTED:
+    case UC_MODE_16_BIT | UC_MODE_LONG:
+    case UC_MODE_32_BIT | UC_MODE_PROTECTED:
+    case UC_MODE_32_BIT | UC_MODE_LONG:
         switch (regid) {
         default:
             break;
@@ -1612,7 +1671,7 @@ uc_err reg_write(void *_env, int mode, unsigned int regid, const void *value,
         break;
 
 #ifdef TARGET_X86_64
-    case UC_MODE_64:
+    case UC_MODE_64_BIT | UC_MODE_LONG:
         switch (regid) {
         default:
             break;

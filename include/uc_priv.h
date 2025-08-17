@@ -26,7 +26,9 @@
     (UC_MODE_MIPS32 | UC_MODE_MIPS64 | UC_MODE_LITTLE_ENDIAN |                 \
      UC_MODE_BIG_ENDIAN)
 #define UC_MODE_X86_MASK                                                       \
-    (UC_MODE_16 | UC_MODE_32 | UC_MODE_64 | UC_MODE_LITTLE_ENDIAN)
+    (UC_MODE_16_BIT | UC_MODE_32_BIT | UC_MODE_64_BIT | UC_MODE_REAL |         \
+     UC_MODE_PROTECTED | UC_MODE_LONG | UC_MODE_VIRTUAL |                      \
+     UC_MODE_LITTLE_ENDIAN)
 #define UC_MODE_PPC_MASK (UC_MODE_PPC32 | UC_MODE_PPC64 | UC_MODE_BIG_ENDIAN)
 #define UC_MODE_SPARC_MASK                                                     \
     (UC_MODE_SPARC32 | UC_MODE_SPARC64 | UC_MODE_BIG_ENDIAN)
@@ -35,6 +37,11 @@
     (UC_MODE_RISCV32 | UC_MODE_RISCV64 | UC_MODE_LITTLE_ENDIAN)
 #define UC_MODE_S390X_MASK (UC_MODE_BIG_ENDIAN)
 #define UC_MODE_TRICORE_MASK (UC_MODE_LITTLE_ENDIAN)
+
+#define UC_MODE_X86_BIT_MASK                                                   \
+    (UC_MODE_16_BIT | UC_MODE_32_BIT | UC_MODE_64_BIT)
+#define UC_MODE_X86_MODE_MASK                                                  \
+    (UC_MODE_REAL | UC_MODE_PROTECTED | UC_MODE_LONG | UC_MODE_VIRTUAL)
 
 #define ARR_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
